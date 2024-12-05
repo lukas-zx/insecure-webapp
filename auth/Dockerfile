@@ -1,7 +1,8 @@
-FROM node:12 # Veraltetes Base-Image
+ # Veraltetes Base-Image
+FROM node:18
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 4000
-CMD ["node", "server.js"]
+CMD ["npm", "start"]

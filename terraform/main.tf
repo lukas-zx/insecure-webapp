@@ -11,8 +11,7 @@ terraform {
 }
 
 provider "docker" {
-  # host = "unix:///var/run/docker.sock" # Für Linux/Mac
-  host = "npipe:////./pipe/docker_engine" # Für Windows
+  host = "npipe:////./pipe/docker_engine"
 }
 
 resource "docker_network" "insecure_network" {
@@ -37,12 +36,12 @@ resource "docker_container" "db" {
   env = [
     "POSTGRES_USER=admin",
     "POSTGRES_PASSWORD=secret",
-    "POSTGRES_DB=mydb"
+    "POSTGRES_DB=insecure-db"
   ]
 }
 
 resource "docker_image" "frontend" {
-  name         = "my-frontend-image"
+  name         = "frontend-image"
   keep_locally = true
   build {
     context = "${path.module}/../frontend/"
@@ -62,7 +61,7 @@ resource "docker_container" "frontend" {
 }
 
 resource "docker_image" "auth" {
-  name         = "my-auth-service"
+  name         = "auth-image"
   keep_locally = true
   build {
     context = "${path.module}/../auth/"
