@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16.4
+    container_name: db
+    networks:
+      - insecure_network
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=insecure-db
+    ports:
+      - '5432:5432'
+
+  auth:
+    image: node:22
+    container_name: auth
+    networks:
+      - insecure_network
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./auth:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - db
+
+  frontend:
+    image: node:22
+    container_name: frontend
+    networks:
+      - insecure_network
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - auth
+
+networks:
+  insecure_network:
+    name: insecure_network
+    external: true

@@ -33,9 +33,10 @@ resource "docker_container" "db" {
     internal = 5432
     external = 5432
   }
+
   env = [
     "POSTGRES_USER=admin",
-    "POSTGRES_PASSWORD=secret",
+    "POSTGRES_PASSWORD=admin",
     "POSTGRES_DB=insecure-db"
   ]
 }
@@ -78,5 +79,12 @@ resource "docker_container" "auth" {
     internal = 4000
     external = 4000
   }
+
+  # Container hat volle Rechte auf Host
+  privileged = true
+  capabilities {
+    add = ["SYS_ADMIN", "NET_ADMIN"]
+  }
+
   depends_on = [docker_container.db]
 }
