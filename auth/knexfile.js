@@ -3,9 +3,9 @@ export const config = {
   client: 'pg',
   debug: false,
   connection: {
-    host: 'localhost',
+    host: 'db',
     port: 5432,
-    database: 'insecure-db',
+    database: 'postgres',
     user: 'admin',
     password: 'admin',
     ssl: false

@@ -7,3 +7,16 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+INSERT INTO users (email, username, password, token)
+VALUES
+  ('user1@example.com', 'user1', 'password1', NULL),
+  ('user2@example.com', 'user2', 'password2', NULL),
+  ('user3@example.com', 'user3', 'password3', NULL),
+  ('user4@example.com', 'user4', 'password4', NULL),
+  ('user5@example.com', 'user5', 'password5', NULL),
+  ('user6@example.com', 'user6', 'password6', NULL),
+  ('user7@example.com', 'user7', 'password7', NULL),
+  ('user8@example.com', 'user8', 'password8', NULL),
+  ('user9@example.com', 'user9', 'password9', NULL),
+  ('user10@example.com', 'user10', 'password10', NULL);
