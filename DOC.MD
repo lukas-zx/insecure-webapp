@@ -1,6 +1,6 @@
 # A01: Broken Access Control
 
-- Löschfunktion ist öffentlich Zugänglich, ohne Zugriffskontrolle (Auth-Service)
+- Löschfunktion ist öffentlich Zugänglich, ohne Zugriffskontrolle oder Kontrolle, ob User die erforderlichen Berechtigungen hat (Auth-Service)
     ```js
     app.post('/delete/:id', async (req, res) => {
       try {
@@ -34,24 +34,11 @@
    
 # A02: Cryptographic Failures
 
-- Passwort-Hashing mit MD5 und ohne salt (Auth-Service)
+- Passwort-Hashing bei Registrierung mit MD5 und ohne salt (Auth-Service)
     ```js
-   app.post('/register', async (req, res) => {
-      const { email, username, password } = req.body
-      try {
-         const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
-         const userId = await db.table('users').insert({ email, username, password: hashedPassword }).returning('id')
-         res.status(201).json({ success: true, message: userId })
-      } catch (error) {
-         console.error(error)
-         res.status(500).json({
-            success: false,
-            message: error.stack,
-         })
-      }
-   })
+   const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
    ```
-   
+  
 - JWT secret ist hardcoded (Auth-Service)
    ```js
    const SECRET_KEY = 'secret-key'
@@ -88,30 +75,8 @@
 
 - SQL Injection bei login möglich (Auth-Service)
    ```js
-   app.post('/login', async (req, res) => {
-      const { email, password } = req.body
-      try {
-         const query = `SELECT * FROM users WHERE email = '${email}'`
-         const result = await db.raw(query)
-         if (result.rows.length === 0) return res.status(401).send({
-            success: false,
-            message: 'Invalid email or password',
-         })
-
-         const user = result.rows[0]
-         const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
-         if (hashedPassword !== user.password) return res.status(401).send({
-           success: false,
-           message: 'Invalid email or password',
-         })
-
-         const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '365d' })
-         res.status(200).send({ success: true, token })
-      } catch (error) {
-         console.error(error)
-         res.status(500).json({ success: false, message: error.stack }) // stack ausgeben
-      }
-   })
+   const query = `SELECT * FROM users WHERE email = '${email}'`
+   const result = await db.raw(query)
    ```
 
 # A04: Insecure Design
@@ -122,37 +87,16 @@
 
 - Keine SSL Verbindung zur Datenbank (knexfile)
    ```js
-   export const config = {
-      client: 'pg',
-      debug: false,
-      connection: {
-         host: 'db',
-         port: 5432,
-         database: 'postgres',
-         user: 'admin',
-         password: 'admin',
-         ssl: false
-      },
-   }
+   ssl: false
    ```
   
 - x-powered-by HTTP Header ist nicht disabled
 
-- in /register wird Stack-Trace ausgegeben (Auth-Service)
+- in /register wird Stack-Trace zurück gegeben (Auth-Service)
    ```js
-   app.post('/register', async (req, res) => {
-      const { email, username, password } = req.body
-      try {
-         const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
-         const userId = await db.table('users').insert({ email, username, password: hashedPassword }).returning('id')
-         res.status(201).json({ success: true, message: userId })
-      } catch (error) {
-      console.error(error)
-         res.status(500).json({
-            success: false,
-            message: error.stack,
-         })
-      }
+   res.status(500).json({
+      success: false,
+      message: error.stack,
    })
    ```
 
@@ -166,31 +110,29 @@
    EXPOSE 4000
    CMD ["npm", "start"]
    ```
-- auth-container hat volle Rechte auf Host
+- Auth-Container hat volle Rechte auf Host
    ```tf
-   resource "docker_container" "auth" {
-      image = docker_image.auth.name
-      name  = "auth"
-      networks_advanced {
-         name = docker_network.insecure_network.name
-      }
-      ports {
-         internal = 4000
-         external = 4000
-      }
-
-      privileged = true
-      capabilities {
-         add = ["SYS_ADMIN", "NET_ADMIN"]
-      }
-
-      depends_on = [docker_container.db]
+   privileged = true
+   capabilities {
+      add = ["SYS_ADMIN", "NET_ADMIN"]
    }
    ```
 
 # A06: Vulnerable and Outdated Components
 
-- TODO
+- Im Auth-Service wird eine veraltete Express-Version verwendet. 
+  ```json
+  "dependencies": {
+      "body-parser": "^1.20.3",
+      "cors": "^2.8.5",
+      "crypto": "^1.0.1",
+      "express": "4.16.0",
+      "jsonwebtoken": "^9.0.2",
+      "knex": "^3.1.0",
+      "nodemon": "^3.1.7",
+      "pg": "^8.13.1"
+  }
+  ```
 
 # A07: Identification and Authentification Failures
 
@@ -198,46 +140,23 @@
  
 - JWT ist 1 Jahr lang gültig (Auth-Service)
    ```js
-   app.post('/login', async (req, res) => {
-      const { email, password } = req.body
-      try {
-         const query = `SELECT * FROM users WHERE email = '${email}'`
-         const result = await db.raw(query)
-         if (result.rows.length === 0) return res.status(401).send({
-            success: false,
-            message: 'Invalid email or password',
-         })
-
-         const user = result.rows[0]
-         const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
-         if (hashedPassword !== user.password) return res.status(401).send({
-           success: false,
-           message: 'Invalid email or password',
-         })
-
-         const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '365d' })
-         res.status(200).send({ success: true, token })
-      } catch (error) {
-         console.error(error)
-         res.status(500).json({ success: false, message: error.stack })
-      }
-   })
+   const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '365d' })
    ```
 
 # A08: Software and Data Integrety Failures
 - bootstrap CDN hash wird nicht geprüft (alle HTML Dateien)
-```html
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-      crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-```
+   ```html
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+         crossorigin="anonymous">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+           crossorigin="anonymous"></script>
+   ```
 
 # A09: Security Logging and Monitoring Failures
 - kein Logging von login-Versuchen
 
 # A10: SSRF
-- Benutzer kann beliebige URL angeben
+- Benutzer kann beliebige URL angeben (frontend)
   ```js
   app.post('/proxy', async (req, res) => {
      const url = req.body.url
