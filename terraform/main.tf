@@ -80,7 +80,6 @@ resource "docker_container" "auth" {
     external = 4000
   }
 
-  # Container hat volle Rechte auf Host
   privileged = true
   capabilities {
     add = ["SYS_ADMIN", "NET_ADMIN"]

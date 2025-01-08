@@ -96,13 +96,6 @@ app.get('/admin-panel', (req, res) => {
   res.sendFile(path.resolve('./src/admin-panel.html'))
 })
 
-app.get('/ssrf', (req, res) => {
-  res.send(`
-    <iframe src="about:blank" onload="alert('beliebiges JS ausgeführt 😈')"></iframe>
-  `)
-})
-
-// SSRF: Benutzer kann beliebige URLs angeben
 app.post('/proxy', async (req, res) => {
   const url = req.body.url
   try {

@@ -16,10 +16,8 @@ app.use(express.json())
 app.use(bodyParser.json())
 app.use(cors())
 
-// HARDCODED SECRET KEY
 const SECRET_KEY = 'secret-key'
 
-// Verifiziere das JWT-Token
 app.post('/verify', (req, res) => {
   const { token } = req.body
   if (!token) return res.status(400).json({
@@ -42,11 +40,9 @@ app.post('/verify', (req, res) => {
   }
 })
 
-// Auth-Endpoint mit MD5-Schwachstelle
 app.post('/register', async (req, res) => {
   const { email, username, password } = req.body
   try {
-    // Unsicheres Passwort-Hashing mit MD5, außerdem kein salt
     const hashedPassword = crypto.createHash('md5').update(password).digest('hex')
     const userId = await db.table('users').insert({ email, username, password: hashedPassword }).returning('id')
     res.status(201).json({ success: true, message: userId })
@@ -54,12 +50,11 @@ app.post('/register', async (req, res) => {
     console.error(error)
     res.status(500).json({
       success: false,
-      message: error.stack, // information disclosure
+      message: error.stack,
     })
   }
 })
 
-// Auth-Endpoint mit SQLI-Schwachstelle
 app.post('/login', async (req, res) => {
   const { email, password } = req.body
   try {
@@ -79,16 +74,14 @@ app.post('/login', async (req, res) => {
       message: 'Invalid email or password',
     })
 
-    // Token mit dem hardcodierten Secret generieren und 1 Jahr gültig machen
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '365d' })
     res.status(200).send({ success: true, token })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ success: false, message: error.stack }) // stack ausgeben
+    res.status(500).json({ success: false, message: error.stack })
   }
 })
 
-// get route ohne auth, userdaten werden außerdem unverschlüsselt (HTTP) versendet
 app.get('/users', async (req, res) => {
   try {
     const users = await db.table('users').select('*')
@@ -99,7 +92,6 @@ app.get('/users', async (req, res) => {
   }
 })
 
-// delete route ohne auth
 app.post('/delete/:id', async (req, res) => {
   try {
     const id = req.params.id
