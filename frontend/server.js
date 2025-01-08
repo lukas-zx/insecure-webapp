@@ -107,6 +107,7 @@ app.post('/proxy', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`Frontend running on http://localhost:${PORT}`)
+const HOST = '0.0.0.0'
+app.listen(PORT, HOST, () => {
+  console.log(`Frontend running on http://${HOST}:${PORT}`)
 })

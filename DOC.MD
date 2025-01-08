@@ -137,6 +137,29 @@
       "pg": "^8.13.1"
   }
   ```
+  
+- Im Frontend wird eine EOL-Version von node.js und ein Base-Image mit unnötigen Features verwendet, welches zudem auch EOL ist.
+  ```dockerfile
+  FROM ubuntu:16.04
+  RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    nano \
+    build-essential \
+    python \
+    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean
+
+  WORKDIR /app
+  COPY package*.json ./
+  RUN npm install
+
+  COPY . .
+
+  EXPOSE 3000
+  CMD ["npm", "start"]
+  ```
 
 # A07: Identification and Authentification Failures
 

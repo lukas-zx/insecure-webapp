@@ -139,6 +139,7 @@ app.post('/delete/:id', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`Auth service running on http://localhost:${PORT}`)
+const HOST = '0.0.0.0'
+app.listen(PORT, HOST, () => {
+  console.log(`Auth service running on http://${HOST}:${PORT}`)
 })
