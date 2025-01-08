@@ -82,6 +82,36 @@ app.post('/login', async (req, res) => {
   }
 })
 
+app.post('/recover-password', async (req, res) => {
+  const { email, securityAnswer, newPassword } = req.body
+
+  try {
+    const user = await db.table('users').where({ email }).first()
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    if (user.security_answer !== securityAnswer) {
+      return res.status(401).json({ success: false, message: 'Incorrect security answer' })
+    }
+
+    const hashedPassword = crypto.createHash('md5').update(newPassword).digest('hex')
+
+    await db.table('users')
+      .where({ email })
+      .update({ password: hashedPassword, updated_at: new Date() })
+
+    res.status(200).json({ success: true, message: 'Password updated successfully' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({
+      success: false,
+      message: error.stack,
+    })
+  }
+})
+
 app.get('/users', async (req, res) => {
   try {
     const users = await db.table('users').select('*')

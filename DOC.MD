@@ -20,11 +20,6 @@
     })
     ```
 
-- CORS Kontrolle (Auth-Service)
-    ```js
-    app.use(cors())
-    ```
-
 - Admin-Panel ist ohne Auth zugänglich (Frontend)
     ```js
    app.get('/admin-panel', (req, res) => {
@@ -81,9 +76,19 @@
 
 # A04: Insecure Design
 
-- TODO
+- Passwort zurücksetzen im Auth-Service funktioniert anhand einer Sicherheitsfrage
+  ```js
+  if (user.security_answer !== securityAnswer) {
+    return res.status(401).json({ success: false, message: 'Incorrect security answer' })
+  }
+  ```
 
 # A05: Security Misconfiguration
+
+- CORS-Einstellung (Auth-Service)
+    ```js
+    app.use(cors())
+    ```
 
 - Keine SSL Verbindung zur Datenbank (knexfile)
    ```js
