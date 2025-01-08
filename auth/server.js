@@ -1,6 +1,5 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { exec } from 'child_process'
 import jwt from 'jsonwebtoken'
 import * as crypto from 'node:crypto'
 import cors from 'cors'
@@ -116,32 +115,6 @@ app.post('/delete/:id', async (req, res) => {
     console.error(error)
     res.status(500).json({ success: false, message: 'error deleting user', error: error })
   }
-})
-
-// TODO: irgendwo anders implementieren
-// Session-Token mit unsicheren Zufallszahlen
-app.get('/token', (req, res) => {
-  const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-  console.log(`Generated insecure token: ${token}`)
-  res.status(200).send({ token })
-})
-
-// TODO: in admin page integrieren
-// Endpoint: Command Injection Schwachstelle (?path=/etc; whoami")
-app.get('/files', (req, res) => {
-  const { path } = req.query
-
-  // Unsichere Verwendung von Benutzereingaben in exec()
-  exec('ls ' + path, (error, stdout, _stderr) => {
-    if (error) {
-      console.error(`Error executing command: ${error.message}`)
-      // Stack-Trace zurück senden
-      return res.status(500).send(`Error: ${error.stack}`)
-    }
-
-    console.log(`Command output: ${stdout}`)
-    res.status(200).send(`Files:\n${stdout}`)
-  })
 })
 
 app.listen(PORT, () => {
