@@ -43,28 +43,6 @@
    ```js
    const auth_service_url = 'http://auth:4000'
    ```
-
-
-- Datenbank ist nicht verschlüsselt (terraform)
-   ```tf
-   resource "docker_container" "db" {
-     image = docker_image.db.name
-     name  = "db"
-     networks_advanced {
-       name = docker_network.insecure_network.name
-     }
-     ports {
-       internal = 5432
-       external = 5432
-     }
-
-     env = [
-       "POSTGRES_USER=admin",
-       "POSTGRES_PASSWORD=admin",
-       "POSTGRES_DB=insecure-db"
-     ]
-   }
-   ```
    
 # A03: Injection
 
@@ -120,6 +98,27 @@
    privileged = true
    capabilities {
       add = ["SYS_ADMIN", "NET_ADMIN"]
+   }
+   ```
+  
+- Datenbank ist nicht verschlüsselt (terraform)
+   ```tf
+   resource "docker_container" "db" {
+     image = docker_image.db.name
+     name  = "db"
+     networks_advanced {
+       name = docker_network.insecure_network.name
+     }
+     ports {
+       internal = 5432
+       external = 5432
+     }
+
+     env = [
+       "POSTGRES_USER=admin",
+       "POSTGRES_PASSWORD=admin",
+       "POSTGRES_DB=insecure-db"
+     ]
    }
    ```
 
