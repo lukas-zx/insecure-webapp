@@ -38,6 +38,22 @@
    ```js
    const SECRET_KEY = 'secret-key'
    ```
+  
+- DB-Zugang ist hard coded (Auth-Service)
+   ```js
+  export const config = {
+    client: 'pg',
+    debug: false,
+    connection: {
+      host: 'db',
+      port: 5432,
+      database: 'postgres',
+      user: 'admin',
+      password: 'admin',
+      ssl: false
+    },
+  }
+   ```
    
 - Services kommunizieren per HTTP
    ```js
@@ -67,7 +83,12 @@
     ```js
     app.use(cors())
     ```
-
+  
+- Sicherheitseinstellungen für JWT-Cookie fehlen
+    ```js
+    res.cookie('token', data.token, { maxAge: 365 * 24 * 60 * 60 * 1000 })
+    ```
+  
 - Keine SSL Verbindung zur Datenbank (knexfile)
    ```js
    ssl: false

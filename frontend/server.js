@@ -76,7 +76,7 @@ app.post('/login', async (req, res) => {
     })
     const data = await response.json()
     if (data.success) {
-      res.cookie('token', data.token, { maxAge: 365 * 24 * 60 * 60 * 1000 }) // 1 Jahr gültig
+      res.cookie('token', data.token, { maxAge: 365 * 24 * 60 * 60 * 1000 })
       console.log('login success, redirecting to home')
       return res.redirect('/')
     }

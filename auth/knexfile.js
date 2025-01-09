@@ -1,4 +1,3 @@
-// hard-coded credentials
 export const config = {
   client: 'pg',
   debug: false,
