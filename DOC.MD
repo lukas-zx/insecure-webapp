@@ -67,6 +67,17 @@
    const query = `SELECT * FROM users WHERE email = '${email}'`
    const result = await db.raw(query)
    ```
+  
+- Austausch von innerHTML mit User-Input im admin-panel
+  ```js
+  const tdUsername = document.createElement('td')
+  tdUsername.innerHTML = user.username
+  tr.appendChild(tdUsername)
+
+  const tdEmail = document.createElement('td')
+  tdEmail.innerHTML = user.email
+  tr.appendChild(tdEmail)
+  ``` 
 
 # A04: Insecure Design
 
